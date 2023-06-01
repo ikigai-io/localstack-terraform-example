@@ -14,7 +14,7 @@ services:
       - "./.localstack:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
   terraform:
-    image: rayhub/k8s-helm-deployer:v3.5
+    image: hashicorp/terraform:latest
     entrypoint:
       - ""
     working_dir: /tmp/infra/tests
@@ -23,7 +23,7 @@ services:
       - "./tests:/tmp/infra/tests"
       - "./tfvars:/tmp/infra/tfvars"
     command: >
-        bash -c "terraform -v
+        /bin/sh -c "terraform -v
         && terraform init
         && terraform plan -no-color -input=false -var-file="/tmp/infra/tfvars/terraform.auto.tfvars" -out="/tmp/infra/tfvars/terraform.tfplan"
         && terraform apply -input=false /tmp/infra/tfvars/terraform.tfplan"
