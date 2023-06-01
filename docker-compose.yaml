@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  localstack:
+    image: localstack/localstack:latest
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock
+      HOST_TMP_FOLDER: /tmp/localstack
+      HOSTNAME_EXTERNAL: localstack
+    ports:
+      - "4566:4566"
+      - "8055:8080"
+    volumes:
+      - "./.localstack:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  terraform:
+    image: rayhub/k8s-helm-deployer:v3.5
+    entrypoint:
+      - ""
+    working_dir: /tmp/infra/tests
+    volumes:
+      - "./modules:/tmp/infra/modules"
+      - "./tests:/tmp/infra/tests"
+      - "./tfvars:/tmp/infra/tfvars"
+    command: >
+        bash -c "terraform -v
+        && terraform init
+        && terraform plan -no-color -input=false -var-file="/tmp/infra/tfvars/terraform.auto.tfvars" -out="/tmp/infra/tfvars/terraform.tfplan"
+        && terraform apply -input=false /tmp/infra/tfvars/terraform.tfplan"
